@@ -14,6 +14,7 @@ const ProductList = () => {
   const [searchValue, setSearchValue] = useState('');
   const [searchSuggestions, setSearchSuggestions] = useState([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [favorites, setFavorites] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -23,13 +24,16 @@ const ProductList = () => {
   }, []);
 
   useEffect(() => {
-    const favoritesFromLocalStorage = JSON.parse(localStorage.getItem('favorites')) || [];
-    setProducts(prevProducts =>
-      prevProducts.map(product => ({
-        ...product,
-        favorite: favoritesFromLocalStorage.includes(product._id)
-      }))
-    );
+    const fetchFavorites = async () => {
+      try {
+        const response = await ProductService.getFavorites();
+        setFavorites(response.data);
+      } catch (error) {
+        console.error('Error fetching favorites:', error);
+      }
+    };
+
+    fetchFavorites();
   }, []);
 
   const handleAddNew = () => {
@@ -82,30 +86,48 @@ const ProductList = () => {
     navigate(`/search?query=${searchValue}`);
   };
 
-  const handleFavorite = (favouriteProduct) => {
+  const handleFavorite = (product) => {
+    const isFavorite = favorites.includes(product._id);
+    if (isFavorite) {
+      removeFavorite(product._id);
+    } else {
+      addFavorite(product._id);
+    }
+  };
+
+  const addFavorite = async (productId) => {
+    try {
+      await ProductService.addToFavorites(productId);
+      setFavorites([...favorites, productId]);
+      updateProductFavoriteStatus(productId, true);
+    } catch (error) {
+      console.error('Error adding product to favorites:', error);
+    }
+  };
+
+  const removeFavorite = async (productId) => {
+    try {
+      await ProductService.removeFromFavorites(productId);
+      setFavorites(favorites.filter(id => id !== productId));
+      updateProductFavoriteStatus(productId, false);
+    } catch (error) {
+      console.error('Error removing product from favorites:', error);
+    }
+  };
+
+  const updateProductFavoriteStatus = (productId, isFavorite) => {
     setProducts(prevProducts =>
       prevProducts.map(product => {
-        if (product._id === favouriteProduct._id) {
+        if (product._id === productId) {
           return {
             ...product,
-            favorite: !product.favorite
+            favorite: isFavorite
           };
         }
         return product;
       })
     );
-    const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-    const existingIndex = favorites.findIndex((favProduct) => favProduct._id === favouriteProduct._id);
-
-    if (existingIndex !== -1) {
-      favorites.splice(existingIndex, 1);
-    } else {
-      favorites.push(favouriteProduct);
-    }
-
-    localStorage.setItem('favorites', JSON.stringify(favorites));
   };
-
 
   return (
     <div className='flex justify-center min-h-screen'>
@@ -157,7 +179,7 @@ const ProductList = () => {
           action={handleDelete}
           disable={selectedProducts.length === 0}
         />
-        <ProductTable prod={products} handleCheckboxChange={handleCheckboxChange} handleFavorite={handleFavorite} />
+        <ProductTable prod={products} handleCheckboxChange={handleCheckboxChange} handleFavorite={handleFavorite} favorites={favorites} />
         <DeleteConfirmationModal isOpen={isDeleteModalOpen} onCancel={() => setIsDeleteModalOpen(false)} onConfirm={confirmDelete} />
       </div>
     </div>

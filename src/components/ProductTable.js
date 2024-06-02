@@ -5,7 +5,7 @@ import { faStar as solidStar } from '@fortawesome/free-solid-svg-icons';
 import { faStar as regularStar } from '@fortawesome/free-regular-svg-icons';
 
 
-const ProductTable = ({ prod, handleCheckboxChange, handleFavorite  }) => {
+const ProductTable = ({ prod, handleCheckboxChange, handleFavorite, favorites }) => {
     const formatDate = (isoString) => {
         const date = new Date(isoString);
         return date.toLocaleDateString('en-US', {
@@ -78,9 +78,9 @@ const ProductTable = ({ prod, handleCheckboxChange, handleFavorite  }) => {
                                     </th>
                                     <td className="px-6 py-4">{product.quantity}</td>
                                     <td className="px-6 py-4">{formatDate(product.createdAt)}</td>
-                                    <td className="px-6 py-4"  onClick={(e) => e.stopPropagation()}>
+                                    <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
                                         <button onClick={() => handleFavorite(product)}>
-                                            <FontAwesomeIcon icon={product.favorite ? solidStar : regularStar } className="text-yellow-500" />
+                                            <FontAwesomeIcon icon={favorites.includes(product._id) ? solidStar : regularStar} className="text-yellow-500" />
                                         </button>
                                     </td>
                                     {!shouldHideCheckbox && (
