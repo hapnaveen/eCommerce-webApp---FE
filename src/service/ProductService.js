@@ -11,6 +11,10 @@ class ProductService {
     return axios.get(API_URL + id);
   }
 
+  getSearchSuggestions(query) {
+    return axios.get(`${API_URL}/search/${query}`);
+  }
+
   createProduct(productData) {
     return axios.post(API_URL, productData, {
       headers: {

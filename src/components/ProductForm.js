@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Button from './Button';
 import { useNavigate } from 'react-router-dom';
+import TextField from './TextField';
 
 const ProductForm = ({ product = {}, onSubmit }) => {
   const [sku, setSku] = useState('');
@@ -92,30 +93,38 @@ const ProductForm = ({ product = {}, onSubmit }) => {
       <div class="space-y-12">
         <div class="border-b border-gray-900/10 pb-12">
           <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-            <div class="sm:col-span-3">
-              <label class="block text-sm font-medium leading-6 text-gray-900">SKU</label>
-              <div class="mt-2">
-                <div class="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 sm:max-w-md">
-                  <input type="text" name="sku" id="sku" autocomplete="sku" class="block flex-1 border-0 bg-transparent py-1.5 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6" placeholder="Enter SKU" value={sku} onChange={(e) => setSku(e.target.value)} required />
-                </div>
-              </div>
-            </div>
-            <div class="sm:col-span-3">
-              <label for="name" class="block text-sm font-medium leading-6 text-gray-900">Product Name</label>
-              <div class="mt-2">
-                <div class="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 sm:max-w-md">
-                  <input type="text" name="name" id="name" autocomplete="name" class="block flex-1 border-0 bg-transparent py-1.5 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6" placeholder="Enter Product Name" value={name} onChange={(e) => setName(e.target.value)} required />
-                </div>
-              </div>
-            </div>
-            <div class="sm:col-span-3">
-              <label for="quantity" class="block text-sm font-medium leading-6 text-gray-900">Product Quantity</label>
-              <div class="mt-2">
-                <div class="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 sm:max-w-md">
-                  <input type="number" min={1} name="quantity" id="quantity" autocomplete="quantity" class="block flex-1 border-0 bg-transparent py-1.5 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6" placeholder="Enter Product Qunatity" value={quantity} onChange={(e) => setQuantity(e.target.value)} required />
-                </div>
-              </div>
-            </div>
+            <TextField
+              label="SKU"
+              name="sku"
+              id="sku"
+              value={sku}
+              onChange={(e) => setSku(e.target.value)}
+              required
+              placeholder="Enter SKU"
+              autoComplete="sku"
+            />
+            <TextField
+              label="Product Name"
+              name="name"
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              placeholder="Enter Product Name"
+              autoComplete="name"
+            />
+            <TextField
+              label="Product Quantity"
+              type="number"
+              name="quantity"
+              id="quantity"
+              value={quantity}
+              onChange={(e) => setQuantity(e.target.value)}
+              required
+              min={1}
+              placeholder="Enter Product Quantity"
+              autoComplete="quantity"
+            />
             <div class="col-span-full">
               <label for="description" class="block text-sm font-medium leading-6 text-gray-900">Description</label>
               <div class="mt-2">
