@@ -127,7 +127,7 @@ const ProductList = () => {
         <h1 className='text-2xl font-bold mb-5 text-left uppercase'>Products</h1>
         <div className='relative mb-5'>
           <div className="flex mx-auto justify-between">
-            <div className="relative w-1/4">
+            <div className="relative w-1/2">
               <div className="sm:col-span-3">
                 <div className="mt-2 flex rounded-3xl shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 sm:max-w-md relative">
                   <input
