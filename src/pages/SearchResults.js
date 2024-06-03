@@ -14,7 +14,6 @@ const SearchResults = () => {
     useEffect(() => {
         const fetchSearchResults = async () => {
             try {
-                console.log(searchValue);
                 const response = await ProductService.getSearchSuggestions(searchValue);
                 setSearchResults(response.data);
             } catch (error) {

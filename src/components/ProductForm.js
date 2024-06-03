@@ -59,7 +59,6 @@ const ProductForm = ({ product = {}, onSubmit }) => {
     if (newImages.length > 0) {
       setImages([...newImages]);
       const newPreviewImages = Array.from(newImages).map(image => URL.createObjectURL(image));
-      console.log(newPreviewImages)
       setPreviewImages(newPreviewImages);
     } else {
       setImages([...product.images]);

@@ -40,7 +40,6 @@ const ProductList = () => {
   };
 
   const handleDelete = (id) => {
-    console.log(id)
     setSelectedProduct(id)
     setIsDeleteModalOpen(true);
   };

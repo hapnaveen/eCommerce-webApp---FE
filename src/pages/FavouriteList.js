@@ -20,9 +20,7 @@ const FavouritePage = () => {
       try {
         const response = await ProductService.getFavoriteProducts();
         setFavorites(response.data.favouriteProducts);
-        console.log("fav",response.data.favouriteProducts)
         const productsData = await Promise.all(response.data.favouriteProducts.map(id => ProductService.getProductById(id)));
-        console.log(productsData)
         setProducts(productsData.map(response => response.data));
       } catch (error) {
         console.error('Error fetching favorites:', error);
@@ -50,7 +48,6 @@ const FavouritePage = () => {
   };
 
   const handleDelete = (id) => {
-    console.log(id)
     setSelectedProduct(id)
     setIsDeleteModalOpen(true);
   };
