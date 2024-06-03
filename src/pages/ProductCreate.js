@@ -4,7 +4,7 @@ import ProductForm from '../components/ProductForm';
 import ProductService from '../service/ProductService';
 import Button from '../components/Button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFolderOpen } from '@fortawesome/free-solid-svg-icons';
+import { faChevronRight, faFolderOpen } from '@fortawesome/free-solid-svg-icons';
 
 const ProductCreate = () => {
   const navigate = useNavigate();
@@ -44,12 +44,20 @@ const ProductCreate = () => {
     }
   };
 
+  const handleBack = () => {
+    navigate('/')
+  }
+
   return (
     <div className='flex justify-center min-h-screen'>
       <div className='container p-10'>
-        <h1 className='text-2xl font-bold mb-5 text-center'>
-          {id ? 'Edit Product' : 'Create Product'}
-        </h1>
+        <div className='relative mb-5'>
+          <div className="flex items-center">
+            <h1 className='text-2xl font-bold text-left uppercase mr-3 cursor-pointer' onClick={handleBack}>Products</h1>
+            <FontAwesomeIcon icon={faChevronRight} className="h-5 w-4 mr-1" />
+            <span className='text-md text-primaryBlue ml-3'>{id ? 'Edit Product' : 'Create Product'}</span>
+          </div>
+        </div>
         <ProductForm product={product} onSubmit={handleProductSubmit} />
       </div>
     </div>

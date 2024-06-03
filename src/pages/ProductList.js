@@ -3,14 +3,14 @@ import ProductService from '../service/ProductService';
 import ProductTable from '../components/ProductTable';
 import Button from '../components/Button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faDeleteLeft, faFolderOpen, faSearch, faStar as solidStar, faStar as regularStar } from '@fortawesome/free-solid-svg-icons';
+import { faDeleteLeft, faFolderOpen, faSearch, faStar} from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 import DeleteConfirmationModal from '../components/DeleteModal';
 import TextField from '../components/TextField';
 
 const ProductList = () => {
   const [products, setProducts] = useState([]);
-  const [selectedProducts, setSelectedProducts] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState();
   const [searchValue, setSearchValue] = useState('');
   const [searchSuggestions, setSearchSuggestions] = useState([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -19,20 +19,19 @@ const ProductList = () => {
 
   useEffect(() => {
     ProductService.getAllProducts().then(response => {
-      setProducts(response.data.map(product => ({ ...product, favorite: false })));
+      setProducts(response.data.map(product => ({ ...product, favorite: favorites.includes(product._id) })));
     });
-  }, []);
+  }, [favorites]);
 
   useEffect(() => {
     const fetchFavorites = async () => {
       try {
-        const response = await ProductService.getFavorites();
-        setFavorites(response.data);
+        const response = await ProductService.getFavoriteProducts();
+        setFavorites(response.data.favouriteProducts);
       } catch (error) {
         console.error('Error fetching favorites:', error);
       }
     };
-
     fetchFavorites();
   }, []);
 
@@ -40,30 +39,20 @@ const ProductList = () => {
     navigate('/create');
   };
 
-  const handleDelete = () => {
+  const handleDelete = (id) => {
+    console.log(id)
+    setSelectedProduct(id)
     setIsDeleteModalOpen(true);
   };
 
-  const confirmDelete = () => {
-    const remainingProducts = products.filter(product => !selectedProducts.includes(product._id));
-    selectedProducts.forEach(async productId => {
-      await ProductService.deleteProduct(productId);
-    });
+  const confirmDelete = async () => {
+    const remainingProducts = products.filter(product => !selectedProduct.includes(product._id));
+    await ProductService.deleteProduct(selectedProduct);
 
     setProducts(remainingProducts);
-    setSelectedProducts([]);
+    setSelectedProduct('');
     setIsDeleteModalOpen(false);
-    alert('Product(s) deleted successfully!');
-  };
-
-  const handleCheckboxChange = (productId) => {
-    setSelectedProducts(prevSelected => {
-      if (prevSelected.includes(productId)) {
-        return prevSelected.filter(id => id !== productId);
-      } else {
-        return [...prevSelected, productId];
-      }
-    });
+    alert('Product deleted successfully!');
   };
 
   const handleSearchChange = async (e) => {
@@ -129,21 +118,38 @@ const ProductList = () => {
     );
   };
 
+  const navigateToFavourite = () => {
+    navigate('/favourites');
+  };
+
   return (
     <div className='flex justify-center min-h-screen'>
       <div className='container p-10'>
-        <h1 className='text-2xl font-bold mb-5 text-center'>Products</h1>
+        <h1 className='text-2xl font-bold mb-5 text-left uppercase'>Products</h1>
         <div className='relative mb-5'>
-          <div className="flex items-center max-w-lg mx-auto">
-            <label htmlFor="voice-search" className="sr-only">Search</label>
-            <div className="relative w-full">
-              <TextField
-                name="search"
-                id="search"
-                value={searchValue}
-                onChange={handleSearchChange}
-                placeholder="Search by product name or SKU"
-              />
+          <div className="flex mx-auto justify-between">
+            <div className="relative w-1/4">
+              <div className="sm:col-span-3">
+                <div className="mt-2 flex rounded-3xl shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 sm:max-w-md relative">
+                  <input
+                    type="text"
+                    name="search"
+                    id="search"
+                    value={searchValue}
+                    onChange={handleSearchChange}
+                    placeholder="Search by product name or SKU"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-3xl focus:ring-blue-500 focus:border-blue-500 block w-full ps-3 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleSearch}
+                    className="absolute inset-y-0 right-0 px-3 py-2 bg-primaryBlue hover:bg-primaryBlue/90 focus:ring-4 focus:outline-none focus:ring-[#F7BE38]/50 font-medium rounded-3xl text-sm inline-flex items-center text-white dark:focus:ring-[#F7BE38]/50"
+                  >
+                    <FontAwesomeIcon icon={faSearch} className="h-4 w-4 mr-1" />
+                    <span className="hidden sm:inline">Search</span>
+                  </button>
+                </div>
+              </div>
               {searchSuggestions.length > 0 && (
                 <ul className="absolute bg-white border border-gray-300 w-full mt-1 rounded-md shadow-lg z-10">
                   {searchSuggestions.map((suggestion) => (
@@ -158,31 +164,27 @@ const ProductList = () => {
                 </ul>
               )}
             </div>
-            <Button
-              classNames="mt-2 content-end text-gray-900 bg-[#F7BE38] hover:bg-[#F7BE38]/90 focus:ring-4 focus:outline-none focus:ring-[#F7BE38]/50 font-medium rounded-lg text-sm px-5 py-3 inline-flex dark:focus:ring-[#F7BE38]/50 ml-2"
-              icon={<FontAwesomeIcon icon={faSearch} />}
-              text={<span className="hidden sm:inline">Search</span>}
-              action={handleSearch}
-            />
+            <div className="flex items-center">
+              <Button
+                classNames="content-end text-white bg-primaryBlue hover:bg-primaryBlue/90 focus:ring-4 focus:outline-none focus:ring-[#F7BE38]/50 font-medium rounded-lg text-sm px-5 py-2.5 inline-flex dark:focus:ring-[#F7BE38]/50 me-2 mb-2"
+                text="New Product"
+                action={handleAddNew}
+              />
+              <Button
+                classNames="content-end text-primaryBlue bg-white border border-primaryBlue border-2 focus:ring-4 focus:outline-none focus:ring-[#F7BE38]/50 font-medium rounded-lg text-sm px-5 py-2.5 inline-flex dark:focus:ring-[#F7BE38]/50 me-2 mb-2"
+                icon={<FontAwesomeIcon icon={faStar} />}
+                action={navigateToFavourite}
+              />
+
+            </div>
           </div>
         </div>
-        <Button
-          classNames="content-end text-gray-900 bg-[#F7BE38] hover:bg-[#F7BE38]/90 focus:ring-4 focus:outline-none focus:ring-[#F7BE38]/50 font-medium rounded-lg text-sm px-5 py-2.5 inline-flex dark:focus:ring-[#F7BE38]/50 me-2 mb-2"
-          text="Add New"
-          icon={<FontAwesomeIcon icon={faFolderOpen} />}
-          action={handleAddNew}
-        />
-        <Button
-          classNames="content-end text-gray-900 bg-red-500 hover:bg-red-500/90 focus:ring-4 focus:outline-none focus:ring-[#F7BE38]/50 font-medium rounded-lg text-sm px-5 py-2.5 inline-flex dark:focus:ring-[#F7BE38]/50 me-2 mb-2"
-          text="Delete"
-          icon={<FontAwesomeIcon icon={faDeleteLeft} />}
-          action={handleDelete}
-          disable={selectedProducts.length === 0}
-        />
-        <ProductTable prod={products} handleCheckboxChange={handleCheckboxChange} handleFavorite={handleFavorite} favorites={favorites} />
+        <ProductTable prod={products} handleFavorite={handleFavorite} favorites={favorites} handleDelete={handleDelete} />
         <DeleteConfirmationModal isOpen={isDeleteModalOpen} onCancel={() => setIsDeleteModalOpen(false)} onConfirm={confirmDelete} />
       </div>
     </div>
+
+
   );
 };
 
